@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# temp files
+/temp/
+
+# server data
+server/data.json
+server/temp/
+server/public/audio/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
