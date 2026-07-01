@@ -6,7 +6,7 @@ import { useAudioPlayer } from '@/components/player/useAudioPlayer';
 import { PlayerControls } from '@/components/player/PlayerControls';
 import { LyricsDisplay } from '@/components/player/LyricsDisplay';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://luxshare.onrender.com';
 
 export default function Home() {
   const [view, setView] = useState<'upload' | 'player' | null>(null);
