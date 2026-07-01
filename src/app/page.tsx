@@ -6,6 +6,8 @@ import { useAudioPlayer } from '@/components/player/useAudioPlayer';
 import { PlayerControls } from '@/components/player/PlayerControls';
 import { LyricsDisplay } from '@/components/player/LyricsDisplay';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export default function Home() {
   const [view, setView] = useState<'upload' | 'player' | null>(null);
   const [slug, setSlug] = useState('');
@@ -32,7 +34,7 @@ function UploadPage() {
     if (!url.trim()) return;
     setLoading(true); setResult(''); setError('');
     try {
-      const res = await fetch('/api/process', {
+      const res = await fetch(`${API_BASE}/api/process`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url.trim() }),
       });
@@ -74,13 +76,17 @@ function PlayerPage({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/player/${slug}`).then(r => { if (!r.ok) throw Error('Not found'); return r.json(); }).then(d => { setData(d); setLoading(false); }).catch(e => { setErr(e.message); setLoading(false); });
+    fetch(`${API_BASE}/api/player/${slug}`)
+      .then(r => { if (!r.ok) throw Error('Not found'); return r.json(); })
+      .then(d => { setData(d); setLoading(false); })
+      .catch(e => { setErr(e.message); setLoading(false); });
   }, [slug]);
 
   if (!data) return <div className="flex min-h-screen items-center justify-center bg-black"><p className="text-sm text-neutral-500">{loading ? 'Loading...' : err || 'Not found'}</p></div>;
 
   const segments: TranscriptSegment[] = Array.isArray(data.transcript) ? data.transcript : [];
-  const { playing, currentTime, ready, togglePlay, skip } = useAudioPlayer(data.audio_url);
+  const audioUrl = data.audio_url.startsWith('http') ? data.audio_url : `${API_BASE}${data.audio_url}`;
+  const { playing, currentTime, ready, togglePlay, skip } = useAudioPlayer(audioUrl);
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">

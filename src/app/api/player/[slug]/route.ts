@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { corsHeaders, handleOPTIONS, corsResponse } from '@/lib/cors';
+
+export { handleOPTIONS as OPTIONS };
 
 const DATA_FILE = path.join(process.cwd(), 'data.json');
 
@@ -16,6 +19,6 @@ export async function GET(
   const { slug } = await params;
   const db = readDb();
   const item = db.find((d: any) => d.slug === slug);
-  if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(item);
+  if (!item) return corsResponse({ error: 'Not found' }, { status: 404 });
+  return corsResponse(item);
 }

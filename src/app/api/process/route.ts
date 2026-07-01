@@ -1,10 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { randomUUID } from 'crypto';
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { corsHeaders, handleOPTIONS, corsResponse } from '@/lib/cors';
 
 export const maxDuration = 300;
+
+export { handleOPTIONS as OPTIONS };
 
 const DATA_FILE = path.join(process.cwd(), 'data.json');
 const PUBLIC_AUDIO = path.join(process.cwd(), 'public', 'audio');
@@ -31,7 +34,7 @@ function exec(cmd: string, args: string[], cwd: string): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json();
-    if (!url) return NextResponse.json({ error: 'URL required' }, { status: 400 });
+    if (!url) return corsResponse({ error: 'URL required' }, { status: 400 });
 
     const jobId = randomUUID();
     const slug = randomUUID().replace(/-/g, '').slice(0, 8);
@@ -92,9 +95,9 @@ export async function POST(request: NextRequest) {
     fs.copyFileSync(audioPath, path.join(PUBLIC_AUDIO, `${slug}.mp3`));
     fs.unlinkSync(audioPath);
 
-    return NextResponse.json({ success: true, slug });
+    return corsResponse({ success: true, slug });
   } catch (err: any) {
     console.error(err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return corsResponse({ error: err.message }, { status: 500 });
   }
 }
