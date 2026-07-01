@@ -6,8 +6,6 @@ import { useAudioPlayer } from '@/components/player/useAudioPlayer';
 import { PlayerControls } from '@/components/player/PlayerControls';
 import { LyricsDisplay } from '@/components/player/LyricsDisplay';
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
 export default function Home() {
   const [view, setView] = useState<'upload' | 'player' | null>(null);
   const [slug, setSlug] = useState('');
@@ -20,9 +18,7 @@ export default function Home() {
   }, []);
 
   if (!view) return null;
-
   if (view === 'player') return <PlayerPage slug={slug} />;
-
   return <UploadPage />;
 }
 
@@ -34,13 +30,10 @@ function UploadPage() {
 
   const process = useCallback(async () => {
     if (!url.trim()) return;
-    setLoading(true);
-    setResult('');
-    setError('');
+    setLoading(true); setResult(''); setError('');
     try {
-      const res = await fetch(`${BASE}/process`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/process', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url.trim() }),
       });
       const d = await res.json();
@@ -81,7 +74,7 @@ function PlayerPage({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${BASE}/player/${slug}`).then(r => { if (!r.ok) throw Error('Not found'); return r.json(); }).then(d => { setData(d); setLoading(false); }).catch(e => { setErr(e.message); setLoading(false); });
+    fetch(`/api/player/${slug}`).then(r => { if (!r.ok) throw Error('Not found'); return r.json(); }).then(d => { setData(d); setLoading(false); }).catch(e => { setErr(e.message); setLoading(false); });
   }, [slug]);
 
   if (!data) return <div className="flex min-h-screen items-center justify-center bg-black"><p className="text-sm text-neutral-500">{loading ? 'Loading...' : err || 'Not found'}</p></div>;
